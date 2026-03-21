@@ -85,7 +85,23 @@ Read each test file. For each test function/case:
 - Read the source code to understand what logic the test exercises
 - Determine the test runner command (check CLAUDE.md, Makefile, package.json, or infer from project structure — e.g., `pytest`, `jest`, `go test`)
 
-**Scope limit:** Process up to **5 tests per batch**. Report results after each batch and ask the user if they want to continue with more. This prevents overwhelming the system with dozens of parallel subagents.
+**Test runner auto-detection:**
+
+| Language | Detection signals | Test command | Build step |
+|----------|------------------|--------------|------------|
+| Python | `*.py` tests, `pytest.ini`, `setup.cfg` | `pytest` or `python -m unittest` | None |
+| Node.js | `package.json` with jest/vitest | `npx jest` or `npx vitest` | None |
+| Go | `*_test.go`, `go.mod` | `go test ./...` | `go build ./...` |
+| Rust | `Cargo.toml`, `#[test]` blocks | `cargo test` | `cargo build` |
+| Java | `pom.xml` / `build.gradle` | `mvn test` / `gradle test` | `mvn compile` / `gradle build` |
+| TypeScript | `tsconfig.json` + jest/vitest config | `npx jest` / `npx vitest` | `npx tsc --noEmit` |
+| Ruby | `Gemfile` + `spec/` or `test/` dir | `bundle exec rspec` / `ruby -Itest` | None |
+
+Check for project config files (e.g., `Cargo.toml`, `pom.xml`, `package.json`) to auto-detect the language and test runner. Fall back to CLAUDE.md, Makefile, or user prompt if ambiguous.
+
+**Scope limit:** Process up to **5 tests per batch** by default. If invoked via `/mmut --batch N`, use N instead. Report results after each batch and ask the user if they want to continue with more.
+
+**Quick mode:** If invoked via `/mmut --quick`, use exactly **1 mutation per test** regardless of complexity, and skip equivalent mutation analysis. This provides faster validation at the cost of thoroughness.
 
 ### Step 2: Design Mutations
 
@@ -123,16 +139,15 @@ Choose **1-3 mutations per test** based on what the test claims to verify. Pick 
 - **1 mutation** for simple tests with a single assertion or behavior check
 - **2-3 mutations** for tests that claim to verify multiple behaviors or have complex logic
 - When in doubt, start with 1 well-chosen mutation — it's more valuable than 3 weak ones
+- **Quick mode (`--quick`):** Always 1 mutation per test, skip equivalent mutation checks
 
 ### Step 3: Dispatch Worktree Subagents
 
-For each mutation, launch a subagent with `isolation: "worktree"`. Independent mutations can run in parallel.
+For each mutation, dispatch the `mutation-runner` agent with `isolation: "worktree"`. Independent mutations can run in parallel.
 
-**Subagent prompt template:**
+**Dispatch prompt for each mutation:**
 
 ```
-You are performing mutation testing to validate a unit test.
-
 TEST FILE: {test_file_path}
 TEST FUNCTION: {test_name}
 SOURCE FILE: {source_file_path}
@@ -140,29 +155,9 @@ TEST COMMAND: {command to run the specific test}
 
 MUTATION TO APPLY:
 {description of the exact mutation — what to change and where}
-
-STEPS:
-1. Sync the worktree to the latest code: run `git merge main --ff-only` via Bash.
-   - If merge fails, run `git reset --hard main` as fallback.
-   - If both fail, report ERROR with the git error output.
-2. Read the source file at {source_file_path}
-3. Apply ONLY this mutation using the Edit tool: {exact edit description}
-4. Verify the mutation was applied: re-read the mutated line(s) and confirm the change is present. If the file doesn't reflect the change, report ERROR.
-5. If this is a compiled language (Go, Rust, Java, TypeScript, C/C++, Kotlin, Swift, Scala), run the build/compile step before the test. If compilation fails, report ERROR with the compiler output — the mutation was syntactically invalid.
-6. Run the test command via Bash: {test command}
-7. Report the result as one of:
-   - KILLED: Test FAILED (expected — mutation was caught, test is effective)
-   - SURVIVED: Test PASSED (bad — mutation was not caught, test is ineffective)
-   - EQUIVALENT: Test PASSED but the mutation doesn't change observable behavior for any reachable input (explain why)
-   - ERROR: Test could not run (syntax error, import error, git sync failure, etc. — include full error output)
-8. If the result is SURVIVED, analyze whether the mutation actually changes the function's observable output for any reachable input. If not, report as EQUIVALENT instead of SURVIVED, with a brief explanation of why the mutation is semantically equivalent.
-
-IMPORTANT:
-- Apply ONLY the specified mutation. Do not change anything else.
-- Do not fix the mutation. The point is to see if the test catches it.
-- Report the exact test output (pass/fail/error).
-- Do NOT commit any changes. The worktree is disposable.
 ```
+
+The `mutation-runner` agent handles git sync, mutation application, verification, build (if compiled), test execution, and result reporting. See `agents/mutation-runner.md` for full details.
 
 Use the Agent tool with `isolation: "worktree"` for each subagent. This gives each mutation its own isolated copy of the repo — worktrees are automatically cleaned up when the subagent finishes without committing.
 
