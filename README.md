@@ -55,11 +55,76 @@ Use `/plugin` inside Claude Code to search for and install MMUT.
 
 **Manual install:**
 
+1. Clone the repo into the Claude plugins directory:
+
 ```bash
 git clone https://github.com/jitendraag/mmut.git ~/.claude/plugins/mmut
 ```
 
-Then enable it in your `~/.claude/settings.json`:
+2. Register the `local` marketplace in `~/.claude/plugins/known_marketplaces.json`:
+
+```json
+{
+  "local": {
+    "source": {
+      "source": "github",
+      "repo": "jitendraag/mmut"
+    },
+    "installLocation": "~/.claude/plugins/marketplaces/local",
+    "lastUpdated": "2026-01-01T00:00:00.000Z"
+  }
+}
+```
+
+3. Create the local marketplace plugin registry:
+
+```bash
+mkdir -p ~/.claude/plugins/marketplaces/local/.claude-plugin
+mkdir -p ~/.claude/plugins/marketplaces/local/plugins/mmut/.claude-plugin
+cp ~/.claude/plugins/mmut/.claude-plugin/plugin.json \
+   ~/.claude/plugins/marketplaces/local/plugins/mmut/.claude-plugin/plugin.json
+```
+
+4. Create `~/.claude/plugins/marketplaces/local/.claude-plugin/marketplace.json`:
+
+```json
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "local",
+  "description": "Locally installed plugins",
+  "owner": {
+    "name": "Jitendra Agrawal"
+  },
+  "plugins": [
+    {
+      "name": "mmut",
+      "description": "MaLa/AI Maarke Unit Test — validates unit tests using mutation testing.",
+      "author": {
+        "name": "Jitendra Agrawal"
+      },
+      "source": "./plugins/mmut",
+      "category": "development",
+      "homepage": "https://github.com/jitendraag/mmut"
+    }
+  ]
+}
+```
+
+5. Add mmut to `~/.claude/plugins/installed_plugins.json` under the `plugins` key:
+
+```json
+"mmut@local": [
+  {
+    "scope": "user",
+    "installPath": "/absolute/path/to/.claude/plugins/mmut",
+    "version": "1.0.0",
+    "installedAt": "2026-01-01T00:00:00.000Z",
+    "lastUpdated": "2026-01-01T00:00:00.000Z"
+  }
+]
+```
+
+6. Enable it in `~/.claude/settings.json`:
 
 ```json
 {
@@ -68,6 +133,8 @@ Then enable it in your `~/.claude/settings.json`:
   }
 }
 ```
+
+7. Run `/reload-plugins` inside Claude Code to activate.
 
 ## Usage
 

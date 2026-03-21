@@ -1,0 +1,11 @@
+{
+  "name": "mmut",
+  "description": "MaLa/AI Maarke Unit Test marketplace",
+  "plugins": [
+    {
+      "name": "mmut",
+      "description": "MaLa/AI Maarke Unit Test — validates unit tests using mutation testing. Launches parallel subagents in git worktrees to prove each test catches real bugs.",
+      "path": "."
+    }
+  ]
+}
