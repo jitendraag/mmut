@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B6914;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6B4F12;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#16213e;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="200" cy="200" r="190" fill="url(#bgGrad)" stroke="#e94560" stroke-width="4"/>
+
+  <!-- Body -->
+  <ellipse cx="200" cy="230" rx="100" ry="80" fill="url(#bodyGrad)"/>
+
+  <!-- Fur texture lines -->
+  <g stroke="#7a5c10" stroke-width="1.5" fill="none" opacity="0.5">
+    <path d="M130,200 Q150,210 130,230"/>
+    <path d="M150,195 Q170,205 150,225"/>
+    <path d="M170,192 Q190,202 170,222"/>
+    <path d="M200,190 Q220,200 200,220"/>
+    <path d="M230,192 Q250,202 230,222"/>
+    <path d="M250,195 Q270,205 250,225"/>
+    <path d="M270,200 Q290,210 270,230"/>
+  </g>
+
+  <!-- Head -->
+  <ellipse cx="175" cy="175" rx="60" ry="55" fill="url(#bodyGrad)"/>
+
+  <!-- Ear -->
+  <ellipse cx="130" cy="160" rx="20" ry="30" fill="#7a5c10" transform="rotate(-15,130,160)"/>
+  <ellipse cx="132" cy="162" rx="12" ry="20" fill="#c4956a" transform="rotate(-15,132,162)"/>
+
+  <!-- Eye -->
+  <circle cx="160" cy="165" r="8" fill="white"/>
+  <circle cx="162" cy="165" r="5" fill="#1a1a2e"/>
+  <circle cx="164" cy="163" r="2" fill="white"/>
+
+  <!-- Trunk -->
+  <path d="M155,195 Q140,240 125,270 Q120,280 130,285 Q140,280 145,270 Q155,245 165,220"
+        fill="url(#bodyGrad)" stroke="#6B4F12" stroke-width="1"/>
+
+  <!-- Tusks -->
+  <path d="M170,200 Q155,230 140,250 Q130,260 125,255"
+        fill="none" stroke="#FFFFF0" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- Legs -->
+  <rect x="145" y="280" width="25" height="45" rx="8" fill="#6B4F12"/>
+  <rect x="180" y="280" width="25" height="45" rx="8" fill="#6B4F12"/>
+  <rect x="220" y="280" width="25" height="45" rx="8" fill="#7a5c10"/>
+  <rect x="255" y="280" width="25" height="45" rx="8" fill="#7a5c10"/>
+
+  <!-- Tail -->
+  <path d="M300,220 Q320,210 325,195 Q328,188 322,190"
+        fill="none" stroke="#6B4F12" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- DNA helix (mutation testing symbol) -->
+  <g transform="translate(310, 130) rotate(15)">
+    <path d="M0,0 Q15,15 0,30 Q-15,45 0,60 Q15,75 0,90"
+          fill="none" stroke="#e94560" stroke-width="3"/>
+    <path d="M20,0 Q5,15 20,30 Q35,45 20,60 Q5,75 20,90"
+          fill="none" stroke="#0f3460" stroke-width="3"/>
+    <!-- Rungs -->
+    <line x1="5" y1="7" x2="15" y2="7" stroke="#e94560" stroke-width="2"/>
+    <line x1="2" y1="22" x2="18" y2="22" stroke="#0f3460" stroke-width="2"/>
+    <line x1="5" y1="37" x2="15" y2="37" stroke="#e94560" stroke-width="2"/>
+    <line x1="2" y1="52" x2="18" y2="52" stroke="#0f3460" stroke-width="2"/>
+    <line x1="5" y1="67" x2="15" y2="67" stroke="#e94560" stroke-width="2"/>
+    <line x1="2" y1="82" x2="18" y2="82" stroke="#0f3460" stroke-width="2"/>
+    <!-- Mutation X mark -->
+    <g transform="translate(10, 45)">
+      <line x1="-8" y1="-8" x2="8" y2="8" stroke="#e94560" stroke-width="3"/>
+      <line x1="8" y1="-8" x2="-8" y2="8" stroke="#e94560" stroke-width="3"/>
+    </g>
+  </g>
+
+  <!-- MMUT text -->
+  <text x="200" y="370" text-anchor="middle" font-family="Arial Black, sans-serif"
+        font-size="32" font-weight="bold" fill="#FFFFF0" letter-spacing="4">MMUT</text>
+</svg>

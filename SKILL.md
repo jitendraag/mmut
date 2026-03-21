@@ -111,6 +111,14 @@ Choose **1-3 mutations per test** based on what the test claims to verify. Pick 
 - Prefer mutations that change observable behavior, not internal state
 - One strong mutation is better than three weak ones
 
+**Avoiding equivalent mutations:**
+- Before finalizing a mutation, verify it changes observable behavior. If the original and mutated code produce the same result for all reachable inputs (e.g., `x >= 1` → `x > 0` when x is always a positive integer), the mutation is *equivalent* — skip it.
+- Common equivalent mutation traps: rounding changes on integer-only values, reordering independent statements, changing unreachable branches.
+
+**Avoiding trivial mutations:**
+- Don't pick mutations that any test would obviously catch (e.g., returning `None` when the test checks `assertEqual(result, 42)`). These produce KILLED results that give false confidence.
+- A good mutation should be *subtle enough* that a weak test might miss it but a strong test would catch it.
+
 **How many mutations per test:**
 - **1 mutation** for simple tests with a single assertion or behavior check
 - **2-3 mutations** for tests that claim to verify multiple behaviors or have complex logic
@@ -134,14 +142,20 @@ MUTATION TO APPLY:
 {description of the exact mutation — what to change and where}
 
 STEPS:
-1. First, sync the worktree to the latest code: run `git merge main --ff-only` via Bash. (Worktrees cannot `checkout main` because main is already checked out in the primary worktree — use merge instead.)
+1. Sync the worktree to the latest code: run `git merge main --ff-only` via Bash.
+   - If merge fails, run `git reset --hard main` as fallback.
+   - If both fail, report ERROR with the git error output.
 2. Read the source file at {source_file_path}
 3. Apply ONLY this mutation using the Edit tool: {exact edit description}
-4. Run the test command via Bash: {test command}
-5. Report the result as one of:
+4. Verify the mutation was applied: re-read the mutated line(s) and confirm the change is present. If the file doesn't reflect the change, report ERROR.
+5. If this is a compiled language (Go, Rust, Java, TypeScript, C/C++, Kotlin, Swift, Scala), run the build/compile step before the test. If compilation fails, report ERROR with the compiler output — the mutation was syntactically invalid.
+6. Run the test command via Bash: {test command}
+7. Report the result as one of:
    - KILLED: Test FAILED (expected — mutation was caught, test is effective)
    - SURVIVED: Test PASSED (bad — mutation was not caught, test is ineffective)
-   - ERROR: Test could not run (syntax error, import error, etc. — include full error output)
+   - EQUIVALENT: Test PASSED but the mutation doesn't change observable behavior for any reachable input (explain why)
+   - ERROR: Test could not run (syntax error, import error, git sync failure, etc. — include full error output)
+8. If the result is SURVIVED, analyze whether the mutation actually changes the function's observable output for any reachable input. If not, report as EQUIVALENT instead of SURVIVED, with a brief explanation of why the mutation is semantically equivalent.
 
 IMPORTANT:
 - Apply ONLY the specified mutation. Do not change anything else.
@@ -166,7 +180,8 @@ After all subagents complete, compile results and write a persistent artifact fi
 |--------|---------|--------|
 | **KILLED** | Test failed after mutation | Test is effective for this behavior |
 | **SURVIVED** | Test passed despite mutation | Test is ineffective — needs refactoring |
-| **ERROR** | Test couldn't run (syntax/import error) | Mutation was too destructive — ignore, does not reflect on test quality |
+| **EQUIVALENT** | Mutation survived but doesn't change observable behavior | Not a test gap — skip in scoring |
+| **ERROR** | Test couldn't run (syntax/import/compilation error) | Mutation was too destructive — ignore, does not reflect on test quality |
 
 #### 4a: Write artifact file
 
@@ -179,8 +194,8 @@ Write a Markdown file to the project root: `mutation-testing-report.md`. This is
 
 **Tests validated:** {count}
 **Mutations applied:** {count}
-**Killed:** {count} | **Survived:** {count} | **Errors:** {count}
-**Score:** {killed / (killed + survived) * 100}%
+**Killed:** {count} | **Survived:** {count} | **Equivalent:** {count} | **Errors:** {count}
+**Score:** {killed / (killed + survived) * 100}% (equivalent and errors excluded from scoring)
 
 ### Mutation Details
 
@@ -193,9 +208,17 @@ Write a Markdown file to the project root: `mutation-testing-report.md`. This is
 
 #### 2. test_bar (`src/bar.py:87`)
 - **Change made:** `x > 0` → `x <= 0`
-- **Expected:** test_bar should fail because it verifies boundary behavior
-- **Actual:** test_bar passed — it never asserts on the boundary condition
-- **Suggested fix:** Add assertion that checks behavior when x == 0
+- **Why it survived:** test_bar never asserts on the boundary condition when x == 0
+- **Suggested fix:** Add this assertion to test_bar:
+  ```python
+  assert bar(0) == expected_zero_behavior  # catches boundary mutation
+  ```
+
+### Equivalent Mutations (no action needed)
+
+#### 3. test_baz (`src/baz.py:15`)
+- **Change made:** `x >= 1` → `x > 0`
+- **Why equivalent:** x is always a positive integer in this context, so both conditions produce the same result
 ```
 
 #### 4b: Print summary to user
@@ -228,3 +251,13 @@ For each SURVIVED mutation, always ask the user before refactoring — they may 
 **Mutating test infrastructure:** Never mutate the test itself, test fixtures, or shared setup code. Only mutate the source code under test.
 
 **Forgetting isolation:** Always use worktree isolation. Mutating code in the main working tree risks leaving broken state.
+
+## Incremental Re-run
+
+If `mutation-testing-report.md` exists and contains SURVIVED entries from a previous run:
+
+1. Read the report and identify SURVIVED mutations
+2. Ask the user: "Found {N} survived mutations from the last run. Re-run just those to verify fixes?"
+3. If yes, skip baseline verification (assume tests still pass) and skip the identify/design steps
+4. Dispatch subagents only for the previously-survived mutations using the same mutation descriptions from the report
+5. Update the report: change SURVIVED → KILLED for any mutations now caught, add a "Re-run {date}" section
