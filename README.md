@@ -49,15 +49,24 @@ Works with any language and test framework. Tested with:
 
 ## Installation
 
+**From the Claude plugins marketplace** (once approved):
+
+Use `/plugin` inside Claude Code to search for and install MMUT.
+
+**Manual install:**
+
 ```bash
-claude plugin add jitendraag/mmut
+git clone https://github.com/jitendraag/mmut.git ~/.claude/plugins/mmut
 ```
 
-Or add manually by cloning and linking:
+Then enable it in your `~/.claude/settings.json`:
 
-```bash
-git clone https://github.com/jitendraag/mmut.git
-# Then add the path to your Claude Code plugin settings
+```json
+{
+  "enabledPlugins": {
+    "mmut@local": true
+  }
+}
 ```
 
 ## Usage
