@@ -47,11 +47,34 @@ Works with any language and test framework. Tested with:
 | **EQUIVALENT** | Mutation doesn't change observable behavior — not a test gap |
 | **ERROR** | Mutation broke compilation/syntax — ignored in scoring |
 
+## Installation
+
+```bash
+claude plugin add jitendraag/mmut
+```
+
+Or add manually by cloning and linking:
+
+```bash
+git clone https://github.com/jitendraag/mmut.git
+# Then add the path to your Claude Code plugin settings
+```
+
 ## Usage
 
-Install as a Claude Code skill, then write some unit tests. MMUT triggers automatically when tests are written, or invoke manually:
+Write some unit tests. MMUT triggers automatically when tests are written, or invoke manually:
 
 > "Validate my tests" / "Are these tests good?" / "Run mutation testing"
+
+After fixing tests flagged as weak, MMUT supports **incremental re-runs** — it re-validates only the previously-survived mutations without re-running everything.
+
+## Requirements
+
+- **Claude Code** with subagent and worktree support (Agent tool with `isolation: "worktree"`)
+- A git repository (worktrees require git)
+- Test runner installed for your language (pytest, jest, go test, etc.)
+
+> **Note:** This plugin relies on Claude Code's ability to dispatch parallel subagents in isolated git worktrees. It is not compatible with platforms that lack subagent or worktree support.
 
 ## Score
 
