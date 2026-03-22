@@ -9,7 +9,7 @@
     {
       "name": "mmut",
       "description": "MaLa/AI Maarke Unit Test — validates unit tests using mutation testing. Launches parallel subagents in git worktrees to prove each test catches real bugs.",
-      "source": ".",
+      "source": "./",
       "category": "development",
       "homepage": "https://github.com/jitendraag/mmut"
     }
