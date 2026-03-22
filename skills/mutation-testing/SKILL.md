@@ -1,6 +1,6 @@
 ---
 name: mutation-testing
-description: Use when unit tests have been written and need validation, when user asks to verify or validate tests, or when you want to confirm tests actually catch real bugs - launches mutation subagents in worktrees to prove each test fails when code breaks
+description: Use when user says "validate my tests", "verify my tests", "check my tests", "are my tests good", "test quality", "test effectiveness", "mutation testing", or when unit tests have been written and need validation - launches mutation subagents in worktrees to prove each test fails when code breaks
 ---
 
 # Mutation Testing for Unit Tests
