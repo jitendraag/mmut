@@ -31,12 +31,34 @@ The **Mammoth** (🦣) is our mascot because MMUT sounds like mammoth, and like 
 4. **Dispatch** — Launch parallel subagents in isolated git worktrees, each applying one mutation and running the test.
 5. **Report** — Generate a mutation score. Tests that don't catch mutations are flagged with concrete fix suggestions.
 
+## Commands
+
+### `/mmut` — Run mutation testing
+
+```
+/mmut                              # Auto-detect and validate all tests
+/mmut test_auth.py test_users.py   # Validate specific test files
+/mmut --batch 10                   # Process 10 tests per batch (default: 5)
+/mmut --quick                      # 1 mutation per test, faster validation
+/mmut test_auth.py --quick         # Combine file targeting with quick mode
+```
+
+### `/mmut-report` — View results
+
+```
+/mmut-report                       # Show latest mutation testing summary
+```
+
 ## Supported languages
 
-Works with any language and test framework. Tested with:
+Works with any language and test framework. Auto-detects test runners for:
 - **Python** (unittest, pytest)
-- **Node.js** (Jest)
+- **Node.js** (Jest, Vitest)
 - **Go** (go test)
+- **Rust** (cargo test)
+- **Java** (Maven, Gradle)
+- **TypeScript** (Jest, Vitest)
+- **Ruby** (RSpec, Minitest)
 
 ## Result categories
 
@@ -143,6 +165,10 @@ Write some unit tests. MMUT triggers automatically when tests are written, or in
 > "Validate my tests" / "Are these tests good?" / "Run mutation testing"
 
 After fixing tests flagged as weak, MMUT supports **incremental re-runs** — it re-validates only the previously-survived mutations without re-running everything.
+
+## Architecture
+
+MMUT uses a `mutation-runner` agent that runs each mutation in an isolated git worktree. The main orchestrator (invoked via `/mmut` or triggered automatically) designs mutations and dispatches one `mutation-runner` agent per mutation in parallel. Each agent applies its mutation, runs the test, and reports back. Worktrees are automatically cleaned up.
 
 ## Requirements
 
