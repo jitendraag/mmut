@@ -1,11 +1,17 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "mmut",
   "description": "MaLa/AI Maarke Unit Test marketplace",
+  "owner": {
+    "name": "Jitendra Agrawal"
+  },
   "plugins": [
     {
       "name": "mmut",
       "description": "MaLa/AI Maarke Unit Test — validates unit tests using mutation testing. Launches parallel subagents in git worktrees to prove each test catches real bugs.",
-      "path": "."
+      "source": ".",
+      "category": "development",
+      "homepage": "https://github.com/jitendraag/mmut"
     }
   ]
 }
