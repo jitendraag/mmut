@@ -71,92 +71,21 @@ Works with any language and test framework. Auto-detects test runners for:
 
 ## Installation
 
-**From the Claude plugins marketplace** (once approved):
-
-Use `/plugin` inside Claude Code to search for and install MMUT.
-
-**Manual install:**
-
-1. Clone the repo into the Claude plugins directory:
+Install from GitHub using the Claude Code CLI:
 
 ```bash
-git clone https://github.com/jitendraag/mmut.git ~/.claude/plugins/mmut
+claude plugin add github:jitendraag/mmut
 ```
 
-2. Register the `local` marketplace in `~/.claude/plugins/known_marketplaces.json`:
+That's it. The plugin is ready to use immediately.
 
-```json
-{
-  "local": {
-    "source": {
-      "source": "github",
-      "repo": "jitendraag/mmut"
-    },
-    "installLocation": "~/.claude/plugins/marketplaces/local",
-    "lastUpdated": "2026-01-01T00:00:00.000Z"
-  }
-}
-```
-
-3. Create the local marketplace plugin registry:
+### Other plugin commands
 
 ```bash
-mkdir -p ~/.claude/plugins/marketplaces/local/.claude-plugin
-mkdir -p ~/.claude/plugins/marketplaces/local/plugins/mmut/.claude-plugin
-cp ~/.claude/plugins/mmut/.claude-plugin/plugin.json \
-   ~/.claude/plugins/marketplaces/local/plugins/mmut/.claude-plugin/plugin.json
+claude plugin list      # List installed plugins
+claude plugin update    # Update all plugins
+claude plugin remove mmut  # Uninstall
 ```
-
-4. Create `~/.claude/plugins/marketplaces/local/.claude-plugin/marketplace.json`:
-
-```json
-{
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
-  "name": "local",
-  "description": "Locally installed plugins",
-  "owner": {
-    "name": "Jitendra Agrawal"
-  },
-  "plugins": [
-    {
-      "name": "mmut",
-      "description": "MaLa/AI Maarke Unit Test — validates unit tests using mutation testing.",
-      "author": {
-        "name": "Jitendra Agrawal"
-      },
-      "source": "./plugins/mmut",
-      "category": "development",
-      "homepage": "https://github.com/jitendraag/mmut"
-    }
-  ]
-}
-```
-
-5. Add mmut to `~/.claude/plugins/installed_plugins.json` under the `plugins` key:
-
-```json
-"mmut@local": [
-  {
-    "scope": "user",
-    "installPath": "/absolute/path/to/.claude/plugins/mmut",
-    "version": "1.0.0",
-    "installedAt": "2026-01-01T00:00:00.000Z",
-    "lastUpdated": "2026-01-01T00:00:00.000Z"
-  }
-]
-```
-
-6. Enable it in `~/.claude/settings.json`:
-
-```json
-{
-  "enabledPlugins": {
-    "mmut@local": true
-  }
-}
-```
-
-7. Run `/reload-plugins` inside Claude Code to activate.
 
 ## Usage
 
